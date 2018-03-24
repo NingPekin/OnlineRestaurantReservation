@@ -21,13 +21,7 @@ if (!isset($_SESSION)) session_start();
   <link rel="stylesheet" href="css/style.css">
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
-  <!-- =======================================================
-    Theme Name: Vlava
-    Theme URL: https://bootstrapmade.com/vlava-free-bootstrap-one-page-template/
-    Author: BootstrapMade.com
-    Author URL: https://bootstrapmade.com
-  ======================================================= -->
-<!-- php -->
+  <!-- php -->
   <?php include 'includes/functions.php';?>
 
 </head>
@@ -99,7 +93,7 @@ if (!isset($_SESSION)) session_start();
         
           displayAllCitiest();
           if(isset($_GET['chosenCity'])){$_SESSION['chosenCity'] = $_GET['chosenCity'];}
-      
+        
         ?>
 
             </div>

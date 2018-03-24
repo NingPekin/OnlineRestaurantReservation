@@ -1,6 +1,18 @@
 <?php
 // Start the session
 if (!isset($_SESSION)) session_start();
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
+  echo "<script>var r=confirm('Dear ".$_SESSION['user_name'].":  You already loggin');
+  if(r==true)
+  {
+    window.location.href='index.php';
+
+  } 
+  </script>";
+
+
+} 
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -21,12 +33,6 @@ if (!isset($_SESSION)) session_start();
   <link rel="stylesheet" href="css/style.css">
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
-  <!-- =======================================================
-    Theme Name: Vlava
-    Theme URL: https://bootstrapmade.com/vlava-free-bootstrap-one-page-template/
-    Author: BootstrapMade.com
-    Author URL: https://bootstrapmade.com
-  ======================================================= -->
 <!-- php -->
   <?php include 'includes/functions.php';?>
 
