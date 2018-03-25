@@ -1,5 +1,7 @@
 <?php 
 	include 'includes/DB_Config.php';
+	require_once 'includes/classUser.php';
+	require_once 'includes/classDatabase.php';
 
 	function OpenConnection() 	
 	{
@@ -255,20 +257,77 @@
 		endif;
 	}
 	//======================================================================
+	// function Login_function()
+	// {
+		
+	// 	global $DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME;
+	// 	$mysqli = new mysqli($DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME) or die($mysqli->error);
+	// /* User login process, checks if user exists and password is correct */
+
+	// // Escape email to protect against SQL injections
+	// $user_email = $mysqli->escape_string($_POST['user_email']);
+	// //check if email exist
+	// $result = $mysqli->query("SELECT * FROM users WHERE email='$user_email'");
+	// if ( $result->num_rows == 0 )
+	// { // email doesn't exist
+	//  // check if user name exist
+	// 	$result = $mysqli->query("SELECT * FROM users WHERE username='$user_email'");
+	// 	if($result->num_rows == 0)
+	// 	{
+	// 		$_SESSION['message'] = "User doesn't exist!";
+	// 		function_error();
+	// 	}
+	// 	else
+	// 	{
+	// 		goto exist;
+	// 	}
+
+	// }
+	// else 
+
+	// { 
+	// exist:	
+	// 	// User exists
+	// $user = $result->fetch_assoc();
+	// // echo $user['password'];
+	// // echo $_POST['password'];
+	// if ( password_verify($_POST['password'],$user['password']) ) 
+	// {
+		
+	// $_SESSION['email'] = $user['email'];
+	// $_SESSION['user_name'] = $user['username'];
+	// // $_SESSION['active'] = $user['active'];
+	// // This is how we'll know the user is logged in
+	// $_SESSION['logged_in'] = true;
+	// // echo "good";
+	// $_SESSION['message'] = "Login in sucessfully! You will be directed to home page...";
+	// function_success();
+	// }
+	// else 
+	// {
+	// 	// echo "fail";
+	// $_SESSION['message'] = "You have entered wrong password, try again!";
+	// function_error();
+	// }
+	// }
+	// }
+
 	function Login_function()
 	{
-		global $DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME;
-		$mysqli = new mysqli($DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME) or die($mysqli->error);
+		
+		$dataBase=new Database("restaurant_reservation_db");
+		$connection=$dataBase->GetConnection();
 	/* User login process, checks if user exists and password is correct */
 
 	// Escape email to protect against SQL injections
-	$user_email = $mysqli->escape_string($_POST['user_email']);
+	$user_email = $connection->escape_string($_POST['user_email']);
+	
 	//check if email exist
-	$result = $mysqli->query("SELECT * FROM users WHERE email='$user_email'");
+	$result = User::CheckUserByEmail($user_email);
 	if ( $result->num_rows == 0 )
 	{ // email doesn't exist
 	 // check if user name exist
-		$result = $mysqli->query("SELECT * FROM users WHERE username='$user_email'");
+		$result = User::CheckUserByUserName($user_email);
 		if($result->num_rows == 0)
 		{
 			$_SESSION['message'] = "User doesn't exist!";
@@ -285,19 +344,21 @@
 	{ 
 	exist:	
 		// User exists
-	$user = $result->fetch_assoc();
+	$userArray = $result->fetch_assoc();
 	// echo $user['password'];
 	// echo $_POST['password'];
-	if ( password_verify($_POST['password'],$user['password']) ) 
+	if ( password_verify($_POST['password'],$userArray['password']) ) 
 	{
 		
-	$_SESSION['email'] = $user['email'];
-	$_SESSION['user_name'] = $user['username'];
+	$_SESSION['email'] = $userArray['email'];
+	$_SESSION['user_name'] = $userArray['username'];
 	// $_SESSION['active'] = $user['active'];
 	// This is how we'll know the user is logged in
 	$_SESSION['logged_in'] = true;
 	// echo "good";
+	$_SESSION['message'] = "Login in sucessfully! You will be directed to home page...";
 	function_success();
+	header( "Location: index.php" );
 	}
 	else 
 	{
@@ -308,11 +369,79 @@
 	}
 	}
 
+
+	// function register_function()
+	// {
+	// 	global $DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME;
+	// 	$mysqli = new mysqli($DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME) or die($mysqli->error);
+
+	// 	/* Registration process, inserts user info into the database 
+	// 	and sends account confirmation email message
+	// 	*/
+	// 	// Set session variables to be used on profile.php page
+	// 	$_SESSION['email'] = $_POST['email'];
+	// 	$_SESSION['user_name'] = $_POST['user_name'];
+	// 	$_SESSION['password'] = $_POST['password'];
+	// 	// echo $_SESSION['user_name'];
+	// 	// echo $_SESSION['password'];
+	// 	// echo $_SESSION['email'];
+
+	// 	// Escape all $_POST variables to protect against SQL injections
+	// 	$user_name = $mysqli->escape_string($_POST['user_name']);
+	// 	$email = $mysqli->escape_string($_POST['email']);
+	// 	$password = $mysqli->escape_string(password_hash($_POST['password'], PASSWORD_BCRYPT));
+	// 	$hash = $mysqli->escape_string( md5( rand(0,1000) ) );
+	// 	// Check if user with that email already exists
+	// 	$result = $mysqli->query("SELECT * FROM users WHERE email='$email'") or die($mysqli->error());
+	// 	// We know user email exists if the rows returned are more than 0
+	// 	if ( $result->num_rows > 0 ) 
+	// 	{
+	// 	$_SESSION['message'] = 'User with this email already exists!';
+	// 	function_error();
+	// 	}
+	// 	else
+	// 	{
+	// 		$result = $mysqli->query("SELECT * FROM users WHERE username='$user_name'") or die($mysqli->error());
+	// 		if($result->num_rows > 0)
+	// 		{
+	// 		$_SESSION['message'] = 'User with this username already exists!';
+	// 		function_error();
+	// 		}
+	// 		else 
+	// 		{ // Email and username doesn't already exist in a database, proceed...
+	// 		$sql = "INSERT INTO users (userName, email, password, hash) " 
+	// 		. "VALUES ('$user_name','$email','$password', '$hash')";
+	// 		// Add user to the database
+	// 		if ( $mysqli->query($sql) ){
+	// 		// $_SESSION['active'] = 0; //0 until user activates their account with verify.php
+	// 		$_SESSION['logged_in'] = true; // So we know the user has logged in
+	// 		$_SESSION['message'] =
+	// 		"Register successfully!";
+	// 		function_success();
+	// 		// // Send registration confirmation link (verify.php)
+	// 		// $to      = $email;
+	// 		// $subject = 'Account Verification ( clevertechie.com )';
+	// 		// $message_body = '
+	// 		// Hello '.$first_name.',
+	// 		// Thank you for signing up!
+	// 		// Please click this link to activate your account:
+	// 		// http://localhost/login-system/verify.php?email='.$email.'&hash='.$hash;  
+	// 		// mail( $to, $subject, $message_body );
+			
+	// 		}
+	// 		else {
+	// 		$_SESSION['message'] = 'Registration failed!';
+	// 		function_error();
+	// 		}
+	// 		}
+	
+	// 	}
+	// }
 	function register_function()
 	{
-		global $DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME;
-		$mysqli = new mysqli($DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME) or die($mysqli->error);
 
+		$dataBase=new Database("restaurant_reservation_db");
+		$connection=$dataBase->GetConnection();
 		/* Registration process, inserts user info into the database 
 		and sends account confirmation email message
 		*/
@@ -325,21 +454,26 @@
 		// echo $_SESSION['email'];
 
 		// Escape all $_POST variables to protect against SQL injections
-		$user_name = $mysqli->escape_string($_POST['user_name']);
-		$email = $mysqli->escape_string($_POST['email']);
-		$password = $mysqli->escape_string(password_hash($_POST['password'], PASSWORD_BCRYPT));
-		$hash = $mysqli->escape_string( md5( rand(0,1000) ) );
+		$user_name = $connection->escape_string($_POST['user_name']);
+		$email = $connection->escape_string($_POST['email']);
+		$password = $connection->escape_string(password_hash($_POST['password'], PASSWORD_BCRYPT));
+		$hash = $connection->escape_string( md5( rand(0,1000) ) );
+
+		$user=new User($user_name,$password,$email,$hash);
+		// print_r($user);
 		// Check if user with that email already exists
-		$result = $mysqli->query("SELECT * FROM users WHERE email='$email'") or die($mysqli->error());
+		$result = $user->CheckUserByEmail($email);
+		print_r($result);
 		// We know user email exists if the rows returned are more than 0
 		if ( $result->num_rows > 0 ) 
 		{
-		$_SESSION['message'] = 'User with this email already exists!';
-		function_error();
+			$_SESSION['message'] = 'User with this email already exists!';
+			function_error();
 		}
 		else
 		{
-			$result = $mysqli->query("SELECT * FROM users WHERE username='$user_name'") or die($mysqli->error());
+			$result = $user->CheckUserByUserName($user_name);
+			print_r($result);
 			if($result->num_rows > 0)
 			{
 			$_SESSION['message'] = 'User with this username already exists!';
@@ -347,12 +481,12 @@
 			}
 			else 
 			{ // Email and username doesn't already exist in a database, proceed...
-			$sql = "INSERT INTO users (userName, email, password, hash) " 
-			. "VALUES ('$user_name','$email','$password', '$hash')";
 			// Add user to the database
-			if ( $mysqli->query($sql) ){
+			$result	=$user->Create();
+			print_r($result);
+			if ( $result ){
 			// $_SESSION['active'] = 0; //0 until user activates their account with verify.php
-			$_SESSION['logged_in'] = true; // So we know the user has logged in
+			$_SESSION['logged_in'] = false; // So we know the user has logged in
 			$_SESSION['message'] =
 			"Register successfully!";
 			function_success();
@@ -375,6 +509,9 @@
 	
 		}
 	}
+
+
+
 	function display($array){
         
 		echo "<table border=0 width='750'>";

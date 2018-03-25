@@ -1,13 +1,18 @@
 <?php
 // Start the session
 if (!isset($_SESSION)) session_start();
-if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
-  echo "<script>var r=confirm('Dear ".$_SESSION['user_name'].":  You already loggin');
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) 
+{
+  echo  $_SESSION['logged_in'];
+  echo "<script>var r=confirm('Dear ".$_SESSION['user_name'].":  You already loggin. Click Ok to logout');
   if(r==true)
-  {
-    window.location.href='index.php';
+  {";
+
+    session_destroy();
+    echo "
 
   } 
+  window.location.href='index.php';
   </script>";
 
 
