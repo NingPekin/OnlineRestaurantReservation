@@ -15,7 +15,8 @@
 	function CloseConnection($connection){
 		mysqli_close($connection);
 	}
-     	function getAllCities( ) 
+
+	function getAllCities( ) 
 	{
 		$arrayCities = array();
 		$connection = OpenConnection();
@@ -37,7 +38,7 @@
 	//========================================================================
 	function displayAllCitiest()
 	{
-		$arrayCities = array();
+ 
 		$arrayCities =getAllCities();
 		foreach($arrayCities as $value)
 		{
@@ -151,7 +152,6 @@
 	function DisplayAllRestaurants($chosenCategory)
 	{
 
-		$arrayRestaurant = array();
 		$arrayRestaurant =GetRestaurantByCategory($chosenCategory);
 		foreach($arrayRestaurant as $value)
 		{	
@@ -168,6 +168,44 @@
 			<b>'.$value["name"].'</b><br>
 			'.$value["address"].'<br>
 			'.$chosenCategory.'<br>
+			</div>
+		  </div>
+		</a>';
+	
+		}
+
+	}
+
+
+	function DisplayAllSearchedRestaurants($array)
+	{
+		foreach($array as $value)
+		{	
+
+			// echo '(href="restaurant.php?chosenRestaurant='.$value["name"].'">)';
+			$category=GetCategoryByRestaurant($value["name"]);
+			// print_r ($category);
+			$category_array="";
+			foreach($category as $v)
+			{
+				
+				// global $category_array;
+				$category_array=$category_array.$v["name"]." ";
+				// print_r ($category_array);
+
+			}
+			// print_r ($category_array);
+		echo '
+		<a name="chosenRestaurant" href="restaurant.php?chosenRestaurant='.$value["name"].'">
+			<div class="row" style="border-bottom:1px solid">	
+			<div class="col-sm-4" style="margin:auto">
+			<img src="'.$value["picture"].'" style="width:auto;height:150px;"></div>
+			<div class="col-sm-6" style="text-align:center;margin:auto">
+			<br>
+			<br>
+			<b>'.$value["name"].'</b><br>
+			'.$value["address"].'<br>
+			'.$category_array.'<br>
 			</div>
 		  </div>
 		</a>';

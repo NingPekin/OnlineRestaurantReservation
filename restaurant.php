@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<?php
+// Start the session
+if (!isset($_SESSION)) session_start();
+?>
 <html>
 
 <head>
@@ -47,6 +51,7 @@
   </div>
 
   <?php
+  // $searchedRestaurant=$_SESSION['searchedRestaurant'];
   $chosenRestaurant=$_GET['chosenRestaurant'];
   $restaurantDetail=GetRestaurantByName($chosenRestaurant);
   foreach($restaurantDetail as $value)
@@ -61,6 +66,7 @@
     <div class="row" style="margin:100px;font-size:30px">	
       <div class="col-sm-2" style="margin:auto;">
       <?php     
+    // print_r ($restaurantArray);
       echo '<img src="'.$restaurantDetail['picture'].'" alt="" style="height:100px">';
       ?>  
       </div>

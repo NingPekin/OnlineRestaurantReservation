@@ -40,7 +40,6 @@ if (!isset($_SESSION)) session_start();
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
-          <li><a href="city.php">search</a></li>
           <li class="active"><a href="index.php">Home</a></li>
           <li ><a href="login.php">Sign In</a></li>
           <li><a href="register.php">Sign Up</a></li>

@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<?php
+// Start the session
+if (!isset($_SESSION)) session_start();
+?>
 <html>
 
 <head>
@@ -13,18 +17,19 @@
   <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen">
   <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,400italic,700|Open+Sans:300,400,600,700">
-
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
-  <!-- =======================================================
-    Theme Name: Vlava
-    Theme URL: https://bootstrapmade.com/vlava-free-bootstrap-one-page-template/
-    Author: BootstrapMade.com
-    Author URL: https://bootstrapmade.com
-  ======================================================= -->
+
 <!-- php -->
-<?php include 'includes/functions.php';?>
+<?php 
+include 'includes/functions.php';
+include 'includes/classRestaurant.php';
+require_once 'includes/classDatabase.php';
+
+?>
+
 </head>
 
 <body>
@@ -41,7 +46,7 @@
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
-          <li><a href="#section-about">search</a></li>
+
           <li class="active"><a href="index.php">Home</a></li>
           <li ><a href="login.php">Sign In</a></li>
           <li><a href="register.php">Sign Up</a></li>
@@ -56,7 +61,83 @@
     <div class="intro-content">
     </div>
   </section>
+  
+<!-- search -->
+  <section id="search" class="appear">
+  <form action="" method="post"> 
+  <div class="row">
+    <div class="col-xs-6">
+      <div class="input-group">
+      <input name="txtSearch" type="text" class="form-control" placeholder="Search" id="txtSearch"/>
+      <select name='searchMethod'>
+      <option value = "0" > by name </option>
+      <option value = "1"> by category </option>
+    </select>
+   <div class="input-group-btn">
+        <button name="search" class="btn btn-primary" type="submit">
+        <span class="glyphicon glyphicon-search"></span>
+        </button>
+   </div>
+   </div>
+    </div>
+  </div>
+</form>
+</section>
 
+<?php
+
+  if(isset($_POST['search']))
+  {
+    $txtSearch=$_POST["txtSearch"];
+		$dataBase=new Database("restaurant_reservation_db");
+		$connection=$dataBase->GetConnection();
+    // echo $_POST['searchMethod'];
+    // Database::CloseConnection();
+    $selected = "0";
+    if(isset($_POST['searchMethod']))
+    {
+      
+      $selected = $_POST['searchMethod'];  
+      switch($selected)
+      {
+        case '0':    
+        $array= Restaurant::GetRestaurantByName($txtSearch,$connection); 
+        // echo count($array);
+        if(count($array)>0)
+        {
+          $_SESSION['searchedRestaurant'] = $array;
+          // print_r($_SESSION['searchedRestaurant'] );
+          header("Location:category.php");
+        }
+        else
+        {
+          echo "nothing found!";
+        }
+              break;
+        case '1': 
+        $array= Restaurant::GetRestaurantByCategory($txtSearch,$connection);
+        // echo count($array);
+        // foreach($array as $value)
+        // {
+        //   print_r ($value);
+        // }
+        if(count($array)>0)
+        {
+          // print_r ($array);
+          $_SESSION['searchedRestaurant'] = $array;
+          print_r($_SESSION['searchedRestaurant'] );
+          header("Location:category.php");
+        }
+        else
+        {
+          echo "nothing found!";
+        }
+              break;
+      }
+    }
+
+  }
+?>
 
   <!-- about -->
   <section id="section-about" class="section appear clearfix">
