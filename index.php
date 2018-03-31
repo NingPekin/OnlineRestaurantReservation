@@ -53,10 +53,7 @@ if (!isset($_SESSION)) session_start();
   <section id="intro">
     <div class="intro-content">
       <h2>Reserve your table at home</h2>
-      <h3>Effient, Convient and Fast</h3>
-      <div>
-        <a href="#section-services" class="btn-get-started scrollto">Get Started</a>
-      </div>
+      <h3>Effcient, Convient and Fast</h3>
     </div>
   </section>
 
@@ -89,7 +86,8 @@ if (!isset($_SESSION)) session_start();
             <div class="portfolio-items isotopeWrapper clearfix" id="3">
             
         <?php 
-        
+
+        // City::GetAllCities();
           displayAllCitiest();
           if(isset($_GET['chosenCity'])){$_SESSION['chosenCity'] = $_GET['chosenCity'];}
         
@@ -103,7 +101,6 @@ if (!isset($_SESSION)) session_start();
     </div>
   </section>
             
- 
     
     
 

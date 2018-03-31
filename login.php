@@ -15,8 +15,9 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
   window.location.href='index.php';
   </script>";
 
-
 } 
+
+
 
 ?>
 <!DOCTYPE html>
@@ -39,7 +40,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
 <!-- php -->
-  <?php include 'includes/functions.php';?>
+  <?php include 'includes/classUser.php';?>
 
 </head>
 
@@ -57,7 +58,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
-          <li><a href="city.php">search</a></li>
+    
           <li class="active"><a href="index.php">Home</a></li>
           <li ><a href="login.php">Sign In</a></li>
           <li><a href="register.php">Sign Up</a></li>
@@ -69,11 +70,15 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
   </div>
 
   <section id="section-login" style="margin-top:150px">
-  <h3>Welcome Back!</h3>
+
   <form action="" method="post">
      <div class="field-wrap">
         <label>
-        UserName/Email<span class="req">*</span>
+        <select name='loginMethod'>
+						<option value = "0"> User Name </option>
+            <option value = "1" > Email </option>
+        </select>
+        <span class="req">*</span>
         </label>
         <input type="text" required autocomplete="off" name="user_email"/>
      </div>
@@ -89,14 +94,65 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
 </section>
 
 <?php 
-  if ($_SERVER['REQUEST_METHOD'] == 'POST') 
-  {
-      if (isset($_POST['login'])) { //user logging in
+      $selected=0;
+      if(isset($_POST['login']))
+      {
+        if(isset($_POST['loginMethod']))
+        {
+          $selected = $_POST['loginMethod'];
+          //login in with username
+          if($selected==0)
+          {
+            $username = $_POST['user_email'];
+            $password = $_POST['password'];
+            //check username match password
+            if(User::User_Exists_UserName($username,$password))
+            {
+              echo "You are successfully logged in";
+              echo "You will be directed to the home page in 3 seconds...";
+              $_SESSION['user_name']=$username;
+              $_SESSION['password']=$password;
+              $_SESSION['logged_in']=true;
+              echo "<script>
+              setTimeout(function(){
+                window.location.href='index.php';
+              },2000)
+              </script>"; 
+              // header( "Location: index.php" );
+            }         
+            else
+            {
+              echo "Error: Mismatch of Username and Password";
+            }
+            }
 
-        Login_function();
-          
+          //login in with email
+          if($selected==1)
+          {
+            $email = $_POST['user_email'];
+            $password = $_POST['password'];
+            //check email match password
+            if(User::User_Exists_Email($email,$password))
+            {
+              echo "You are successfully logged in";
+              echo "You will be directed to the home page in 3 seconds...";
+              $_SESSION['user_name']=$username;
+              $_SESSION['email']=$email;
+              $_SESSION['logged_in']=true;
+              echo "<script>
+              setTimeout(function(){
+                window.location.href='index.php';
+              },2000)
+              </script>";           
+            }
+            else
+            {
+              echo "Error: Mismatch of Email and Password";
+            }
+          }
+        }
       }
-  }
+      
 ?>
 
 

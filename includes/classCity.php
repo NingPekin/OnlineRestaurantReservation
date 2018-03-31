@@ -1,93 +1,123 @@
 <?php
-require_once "classDatabase.php";
+require_once "classDatabase.PDO.php";
 
-class User{
+class City{
 	private static $database;
-	
-	private $userId;
-	private $username;
-	private $password;
-	private $email;
-	private $hash;
+	private $cityId;
+	private $name;
+	private $picture;
 
-	
-	function __construct($username,$password,$email,
-						 $hash,$userId = null)
+	function __construct($name,$picture,
+						 $cityId = null)
 	{
-		$this->userId = $userId;
-		$this->username = $username;
-		$this->password = $password;
-		$this->email = $email;
-		$this->hash = $hash;
+		$this->cityId = $cityId;
+		$this->name = $name;
+		$this->picture = $picture;
 
 	}
 
-	private static function init_database(){
+	private static function init_database()
+	{
 		if(!isset(self::$database)){
 			self::$database = new Database("restaurant_reservation_db");
 		}
 	}
-	public function Create(){
+	public function Create()
+	{
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$query  = "INSERT INTO users (username, email, password, hash)";
-		$query .= " VALUES ('$this->username','$this->email','$this->password', '$this->hash')";
-		print_r ($query);
-		$result = $connection->query($query);
-		return $result;
-	}
-	public static function ReadUsers(){
-		$arrayUsers = array();
-		self::init_database();
-		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users";
-		$result = $connection->query($sql);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				array_push($arrayUsers ,  $row);
-				// print_r($row);
-				// $arrayCars += [$row['Make'] => $row];
-			}
+		try{
+		$query  = "INSERT INTO cities (name, picture)";
+		$query .= " VALUES (?,?)";
+		$stmt = $connection->prepare($query);
+		$stmt->bindParam(1,$this->name);
+		$stmt->bindParam(2,$this->picture);
+		$stmt->execute();
+		return $connection-> lastInsertId();
+
 		}
-		return $arrayUsers;
+		catch(PDOException $e)
+		{
+			echo "Query Failed ".  $e->getMessage();
+		}
 	}
-	public function CheckUserByEmail($email)
-	{
 
+	public static function GetAllCities()
+	{
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users WHERE email='$email'";
-		$result = $connection->query($sql);
 
-		return $result;
+		// $arrayCities = array();
+		try{
+		$sql  = "SELECT * FROM cities";
+		$stmt = $connection->prepare($sql);
+		$stmt->execute();
+		$result=$stmt->setFetchMode(PDO::FETCH_ASSOC);
+		$rows=$stmt->fetchAll();
+		// print_r($rows);
+		if($rows)
+		{
+			return $rows;
+		}
+		// print_r($result);
+		// if($arrayCities)
+		// {
+		// 	return 
+		// }
+		// if($result->num_rows > 0){
+		// 	while($row = $result->fetch_assoc())
+		// 	{
+		// 		array_push($arrayCities ,  $row);
+		// 		// print_r($row);
 
-
+		// 	}
+		// }
+		// return $arrayCities;
+		}
+		catch(PDOException $e){
+			echo "Query Failed ".$e->getMessage();
+		}
 	}
-	public function CheckUserByUserName($username)
+	public function GetCityByRestaurant($chosenRestaurant)
 	{
-
+		// echo $chosenRestaurant;
+		// $arrayCity = array();
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users WHERE username='$username'";
-		$result = $connection->query($sql);
+		try{
+		$sql='SELECT cities.name from cities where cities.cityId in (select restaurantCity.cityId from restaurantCity where restaurantCity.restaurantId in (SELECT restaurants.restaurantId from restaurants where restaurants.name=?));';
 
-		return $result;
+		$stmt = $connection->prepare($sql);
+		$stmt->bindParam(1,$chosenRestaurant);
+		$stmt->execute();
+		$cityObject=$stmt->fetchAll(PDO::FETCH_OBJ);
+		// echo $sql;
+		// print_r($cityObject);
+		if($cityObject)
+		{
+		return $cityObject;
+		}
+		// $result = $connection->query($sql);
+		// if($result->num_rows > 0)
+		// {
+		// 	while($row = $result->fetch_assoc())
+		// 	{
+		// 		array_push($arrayCity ,  $row);
+		// 		// print_r($row);
 
+		// 	}
+		// }
+		// return $arrayCity;
 
 	}
-	public static function Register()
-	{
-		$_SESSION['email'] = $_POST['email'];
-		$_SESSION['user_name'] = $_POST['user_name'];
-		$_SESSION['password'] = $_POST['password'];
-
-
+	catch(PDOException $e){
+		echo "Query Failed ".$e->getMessage();
+	} 
 	}
+
+
 
 }
 
 
-//-------------------
-//$myCar = new Car(2012, "Jeep", "Cherokee", 0, 15000, 450000, "Grey", "Jeep.jpg");
-//$myCar->Create();
 ?>

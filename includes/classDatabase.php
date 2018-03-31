@@ -4,7 +4,7 @@ define('HOST', 'localhost');
 define('USER', 'root');
 define('PASSWORD', '');
 
-class Database{
+class Database1{
 	private $connection;
 	
 	function __construct($NAME_DB){

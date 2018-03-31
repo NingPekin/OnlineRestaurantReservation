@@ -2,7 +2,9 @@
 	include 'includes/DB_Config.php';
 	require_once 'includes/classUser.php';
 	require_once 'includes/classDatabase.php';
-
+	require_once 'includes/classCity.php';
+	require_once 'includes/classRestaurant.php';
+	require_once 'includes/classCategory.php';
 	function OpenConnection() 	
 	{
 		global $DB_HOST , $DB_USER , $DB_PASSWORD , $DB_NAME;
@@ -39,7 +41,7 @@
 	function displayAllCitiest()
 	{
  
-		$arrayCities =getAllCities();
+		$arrayCities =City::GetAllCities();
 		foreach($arrayCities as $value)
 		{
 		// echo $value['picture'];
@@ -81,39 +83,39 @@
 	}
 	//========================================================================
 
-	function getAllCuisineCategory( ) 
-	{
-		$arrayCusinie = array();
-		$connection = OpenConnection();
-		$sql = "SELECT * FROM categories";
-		$result = mysqli_query($connection,$sql); 
-		if(mysqli_num_rows($result) > 0){
-			while($row = mysqli_fetch_assoc($result)){
-				array_push($arrayCusinie, $row);	
-			}
+	// function getAllCuisineCategory( ) 
+	// {
+	// 	$arrayCusinie = array();
+	// 	$connection = OpenConnection();
+	// 	$sql = "SELECT * FROM categories";
+	// 	$result = mysqli_query($connection,$sql); 
+	// 	if(mysqli_num_rows($result) > 0){
+	// 		while($row = mysqli_fetch_assoc($result)){
+	// 			array_push($arrayCusinie, $row);	
+	// 		}
 			
-		}
-		// print_r($arrayCusinie);
-		CloseConnection($connection);
-		return $arrayCusinie;
+	// 	}
+	// 	// print_r($arrayCusinie);
+	// 	CloseConnection($connection);
+	// 	return $arrayCusinie;
 		
-	}
+	// }
 	//========================================================================
 
 	function displayAllCuisines()
 	{
-		$arrayCuisines = array();
-		$arrayCuisines =getAllCuisineCategory();
-		foreach($arrayCuisines as $value)
+
+		$obj =Category::GetAllCategory();
+		foreach($obj as $value)
 		{			
 		// echo $value['picture'];
-		$arry_string=explode("/", $value['picture']);
+		$arry_string=explode("/", $value->picture);
 		$cusineName=explode(".",$arry_string[2])[0];	
 		
 		echo 	
 		'<div class="col-md-3">
 		<div class="team-member">
-		  <figure class="member-photo"><img src="'.$value['picture'].'" alt="" width="150" height="150" ></figure>
+		  <figure class="member-photo"><img src="'.$value->picture.'" alt="" width="150" height="150" ></figure>
 		  <div class="team-detail">
 			<h4><a name="cusineName" href="category.php?chosenCategory='.$cusineName.'" >'.$cusineName.'</a></h4>
 		  </div>
@@ -127,173 +129,172 @@
 	}
 	//========================================================================
 
-	function GetRestaurantByCategory($chosenCategory)
-	{
-		$arrayRestaurant = array();
-		// $chosenCategory=$_GET['chosenCategory'];
-		// echo $chosenCategory;
-		$connection=openConnection();
-		$sql="select * from restaurants where restaurantId in (select restaurantId from restaurantCategory where categoryId in (select categoryId from categories where name='$chosenCategory'))";
-		$result = mysqli_query($connection,$sql); 
-		if(mysqli_num_rows($result) > 0)
-		{
-			while($row = mysqli_fetch_assoc($result))
-			{
-				array_push($arrayRestaurant, $row);	
-			}		
-		}
-		// print_r($arrayRestaurant);
-		CloseConnection($connection);
-		return $arrayRestaurant;
-	}
+	// function GetRestaurantByCategory($chosenCategory)
+	// {
+	// 	$arrayRestaurant = array();
+	// 	// $chosenCategory=$_GET['chosenCategory'];
+	// 	// echo $chosenCategory;
+	// 	$connection=openConnection();
+	// 	$sql="select * from restaurants where restaurantId in (select restaurantId from restaurantCategory where categoryId in (select categoryId from categories where name='$chosenCategory'))";
+	// 	$result = mysqli_query($connection,$sql); 
+	// 	if(mysqli_num_rows($result) > 0)
+	// 	{
+	// 		while($row = mysqli_fetch_assoc($result))
+	// 		{
+	// 			array_push($arrayRestaurant, $row);	
+	// 		}		
+	// 	}
+	// 	// print_r($arrayRestaurant);
+	// 	CloseConnection($connection);
+	// 	return $arrayRestaurant;
+	// }
 	//========================================================================
 
 
 	function DisplayAllRestaurants($chosenCategory)
 	{
 
-		$arrayRestaurant =GetRestaurantByCategory($chosenCategory);
-		foreach($arrayRestaurant as $value)
+		// $arrayRestaurant =GetRestaurantByCategory($chosenCategory);
+		$object =Restaurant::GetRestaurantByCategory($chosenCategory);
+		if($object)
+		{
+		foreach($object as $value)
 		{	
 			// echo '(href="restaurant.php?chosenRestaurant='.$value["name"].'">)';
 
 		echo '
-		<a name="chosenRestaurant" href="restaurant.php?chosenRestaurant='.$value["name"].'">
+		<a name="chosenRestaurant" href="restaurant.php?chosenRestaurant='.$value->name.'">
 			<div class="row" style="border-bottom:1px solid">	
 			<div class="col-sm-4" style="margin:auto">
-			<img src="'.$value["picture"].'" style="width:auto;height:150px;"></div>
+			<img src="'.$value->picture.'" style="width:auto;height:150px;"></div>
 			<div class="col-sm-6" style="text-align:center;margin:auto">
 			<br>
 			<br>
-			<b>'.$value["name"].'</b><br>
-			'.$value["address"].'<br>
+			<b>'.$value->name.'</b><br>
+			'.$value->address.'<br>
 			'.$chosenCategory.'<br>
 			</div>
 		  </div>
 		</a>';
 	
 		}
+	}
 
 	}
 
 
 	function DisplayAllSearchedRestaurants($array)
 	{
+		// print_r($array);
 		foreach($array as $value)
 		{	
+			// print_r($value);
 
 			// echo '(href="restaurant.php?chosenRestaurant='.$value["name"].'">)';
-			$category=GetCategoryByRestaurant($value["name"]);
+			// $category=GetCategoryByRestaurant($value["name"]);
+
+			// *******
+			$category=Category::GetCategoryByRestaurant($value->name);
+			if($category==null)
+			{
+				$category_array="";
+			}
+			else
+			{
 			// print_r ($category);
 			$category_array="";
 			foreach($category as $v)
 			{
 				
 				// global $category_array;
-				$category_array=$category_array.$v["name"]." ";
+				$category_array=$v->name." ";
 				// print_r ($category_array);
 
 			}
+		}
 			// print_r ($category_array);
 		echo '
-		<a name="chosenRestaurant" href="restaurant.php?chosenRestaurant='.$value["name"].'">
+		<a name="chosenRestaurant" href="restaurant.php?chosenRestaurant='.$value->name.'">
 			<div class="row" style="border-bottom:1px solid">	
 			<div class="col-sm-4" style="margin:auto">
-			<img src="'.$value["picture"].'" style="width:auto;height:150px;"></div>
+			<img src="'.$value->picture.'" style="width:auto;height:150px;"></div>
 			<div class="col-sm-6" style="text-align:center;margin:auto">
 			<br>
 			<br>
-			<b>'.$value["name"].'</b><br>
-			'.$value["address"].'<br>
+			<b>'.$value->name.'</b><br>
+			'.$value->address.'<br>
 			'.$category_array.'<br>
 			</div>
 		  </div>
 		</a>';
 	
 		}
-
+		
 	}
 	//========================================================================
 
-	function GetCategoryByRestaurant($chosenRestaurant)
-	{
-		$arrayCategory = array();
-		// $chosenCategory=$_GET['chosenCategory'];
-		// echo $chosenCategory;
-		$connection=openConnection();
-		$sql='SELECT categories.name from categories where categories.categoryId in (select restaurantCategory.categoryId from restaurantCategory where restaurantCategory.restaurantId in (SELECT restaurants.restaurantId from restaurants where restaurants.name="'.$chosenRestaurant.'"))';
-		$result = mysqli_query($connection,$sql); 
-		if(mysqli_num_rows($result) > 0)
-		{
-			while($row = mysqli_fetch_assoc($result))
-			{
-				array_push($arrayCategory, $row);	
-			}		
-		}
-		// print_r($arrayCategory);
-		CloseConnection($connection);
-		return $arrayCategory;
-	}
+	// function GetCategoryByRestaurant($chosenRestaurant)
+	// {
+	// 	$arrayCategory = array();
+	// 	// $chosenCategory=$_GET['chosenCategory'];
+	// 	// echo $chosenCategory;
+	// 	$connection=openConnection();
+	// 	$sql='SELECT categories.name from categories where categories.categoryId in (select restaurantCategory.categoryId from restaurantCategory where restaurantCategory.restaurantId in (SELECT restaurants.restaurantId from restaurants where restaurants.name="'.$chosenRestaurant.'"))';
+	// 	$result = mysqli_query($connection,$sql); 
+	// 	if(mysqli_num_rows($result) > 0)
+	// 	{
+	// 		while($row = mysqli_fetch_assoc($result))
+	// 		{
+	// 			array_push($arrayCategory, $row);	
+	// 		}		
+	// 	}
+	// 	// print_r($arrayCategory);
+	// 	CloseConnection($connection);
+	// 	return $arrayCategory;
+	// }
 
 		//========================================================================
 
-		function GetCityyByRestaurant($chosenRestaurant)
-		{
-			$arrayCity = array();
-			// $chosenCategory=$_GET['chosenCategory'];
-			// echo $chosenCategory;
-			$connection=openConnection();
-			$sql='SELECT cities.name from cities where cities.cityId in (select restaurantCity.cityId from restaurantCity where restaurantCity.restaurantId in (SELECT restaurants.restaurantId from restaurants where restaurants.name="'.$chosenRestaurant.'"))';
-			$result = mysqli_query($connection,$sql); 
-			if(mysqli_num_rows($result) > 0)
-			{
-				while($row = mysqli_fetch_assoc($result))
-				{
-					array_push($arrayCity, $row);	
-				}		
-			}
-			// print_r($arrayCategory);
-			CloseConnection($connection);
-			return $arrayCity;
-		}
+		// function GetCityyByRestaurant($chosenRestaurant)
+		// {
+		// 	$arrayCity = array();
+		// 	// $chosenCategory=$_GET['chosenCategory'];
+		// 	// echo $chosenCategory;
+		// 	$connection=openConnection();
+		// 	$sql='SELECT cities.name from cities where cities.cityId in (select restaurantCity.cityId from restaurantCity where restaurantCity.restaurantId in (SELECT restaurants.restaurantId from restaurants where restaurants.name="'.$chosenRestaurant.'"))';
+		// 	$result = mysqli_query($connection,$sql); 
+		// 	if(mysqli_num_rows($result) > 0)
+		// 	{
+		// 		while($row = mysqli_fetch_assoc($result))
+		// 		{
+		// 			array_push($arrayCity, $row);	
+		// 		}		
+		// 	}
+		// 	// print_r($arrayCategory);
+		// 	CloseConnection($connection);
+		// 	return $arrayCity;
+		// }
 	//========================================================================
-	function GetRestaurantByName($name)
-	{
-		$restaurantDetail = array();
-		// $chosenCategory=$_GET['chosenCategory'];
-		// echo $chosenCategory;
-		$connection=openConnection();
-		$sql='SELECT * from restaurants where name ="'.$name.'"';
-		$result = mysqli_query($connection,$sql); 
-		if(mysqli_num_rows($result) > 0)
-		{
-			while($row = mysqli_fetch_assoc($result))
-			{
-				array_push($restaurantDetail, $row);	
-			}		
-		}
-		// print_r($restaurantDetail);
-		CloseConnection($connection);
-		return $restaurantDetail;
-	}
+	// function GetRestaurantByName($name)
+	// {
+	// 	$restaurantDetail = array();
+	// 	// $chosenCategory=$_GET['chosenCategory'];
+	// 	// echo $chosenCategory;
+	// 	$connection=openConnection();
+	// 	$sql='SELECT * from restaurants where name ="'.$name.'"';
+	// 	$result = mysqli_query($connection,$sql); 
+	// 	if(mysqli_num_rows($result) > 0)
+	// 	{
+	// 		while($row = mysqli_fetch_assoc($result))
+	// 		{
+	// 			array_push($restaurantDetail, $row);	
+	// 		}		
+	// 	}
+	// 	// print_r($restaurantDetail);
+	// 	CloseConnection($connection);
+	// 	return $restaurantDetail;
+	// }
 
-	function function_error()
-	{
-		if( isset($_SESSION['message']) AND !empty($_SESSION['message']) ): 
-			echo $_SESSION['message'];    
-		else:
-			header( "location: index.php" );
-		endif;
-	}
-
-	function function_success()
-	{
-		if( isset($_SESSION['message']) AND !empty($_SESSION['message']) ): 
-			echo $_SESSION['message'];    
-		else:
-			header( "location: index.php" );
-		endif;
-	}
 	//======================================================================
 	// function Login_function()
 	// {

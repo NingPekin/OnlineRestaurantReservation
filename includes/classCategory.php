@@ -1,24 +1,18 @@
 <?php
-require_once "classDatabase.php";
+require_once "classDatabase.PDO.php";
 
-class User{
+class Category{
 	private static $database;
-	
-	private $userId;
-	private $username;
-	private $password;
-	private $email;
-	private $hash;
+	private $categoryId;
+	private $name;
+	private $picture;
 
 	
-	function __construct($username,$password,$email,
-						 $hash,$userId = null)
+	function __construct($name,$picture,$categoryId = null)
 	{
-		$this->userId = $userId;
-		$this->username = $username;
-		$this->password = $password;
-		$this->email = $email;
-		$this->hash = $hash;
+		$this->categoryId = $categoryId;
+		$this->name = $name;
+		$this->picture = $picture;
 
 	}
 
@@ -27,63 +21,75 @@ class User{
 			self::$database = new Database("restaurant_reservation_db");
 		}
 	}
+
 	public function Create(){
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$query  = "INSERT INTO users (username, email, password, hash)";
-		$query .= " VALUES ('$this->username','$this->email','$this->password', '$this->hash')";
-		print_r ($query);
-		$result = $connection->query($query);
-		return $result;
-	}
-	public static function ReadUsers(){
-		$arrayUsers = array();
-		self::init_database();
-		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users";
-		$result = $connection->query($sql);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				array_push($arrayUsers ,  $row);
-				// print_r($row);
-				// $arrayCars += [$row['Make'] => $row];
-			}
+		try
+		{
+		$query  = "INSERT INTO categories (name, picture)";
+		$query .= " VALUES (?,?)";
+		// print_r ($query);
+		$stmt = $connection->prepare($query);
+		$stmt->bindParam(1,$this->name);
+		$stmt->bindParam(2,$this->picture);
+		$stmt->execute();
+		return $connection-> lastInsertId();
+
 		}
-		return $arrayUsers;
+		catch(PDOException $e){
+			echo "Query Failed ".  $e->getMessage();
+		}
 	}
-	public function CheckUserByEmail($email)
+	public static function GetAllCategory( ) 
 	{
 
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users WHERE email='$email'";
-		$result = $connection->query($sql);
-
-		return $result;
-
+		try
+		{
+		$sql = "SELECT * FROM categories";
+		$stmt = $connection->prepare($sql);	
+		$stmt->execute();
+		$obj = $stmt->fetchAll(PDO::FETCH_OBJ);
+		// $result = mysqli_query($connection,$sql); 
+		if($obj)
+		{
+			return $obj;
+		}
+		
+		}
+		catch(PDOException $e)
+		{
+			echo "Query Failed ".  $e->getMessage();
+		}
 
 	}
-	public function CheckUserByUserName($username)
-	{
 
+	public static function GetCategoryByRestaurant($chosenRestaurant)
+	{
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users WHERE username='$username'";
-		$result = $connection->query($sql);
 
-		return $result;
+		try
+		{
+		$sql='SELECT categories.name from categories where categories.categoryId in (select restaurantCategory.categoryId from restaurantCategory where restaurantCategory.restaurantId in (SELECT restaurants.restaurantId from restaurants where restaurants.name="'.$chosenRestaurant.'"))';
+		$stmt = $connection->prepare($sql);
+		$stmt->execute();
+		$Obj = $stmt->fetchAll(PDO::FETCH_OBJ);
+		if($Obj)
 
+		{
+			return $Obj;
+		}
+
+		}
+		catch(PDOException $e)
+		{
+			echo "Query Failed ".  $e->getMessage();
+		}
 
 	}
-	public static function Register()
-	{
-		$_SESSION['email'] = $_POST['email'];
-		$_SESSION['user_name'] = $_POST['user_name'];
-		$_SESSION['password'] = $_POST['password'];
-
-
-	}
-
 }
 
 

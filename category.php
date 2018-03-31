@@ -24,8 +24,8 @@ if (!isset($_SESSION)) session_start();
   <link rel="stylesheet" href="skin/default.css">
 <!-- php -->
 <?php 
-include 'includes/functions.php';
-include 'includes/classRestaurant.php';
+require_once 'includes/functions.php';
+require_once 'includes/classRestaurant.php';
 require_once 'includes/classDatabase.php';
 
 ?>
@@ -89,10 +89,6 @@ require_once 'includes/classDatabase.php';
   if(isset($_POST['search']))
   {
     $txtSearch=$_POST["txtSearch"];
-		$dataBase=new Database("restaurant_reservation_db");
-		$connection=$dataBase->GetConnection();
-    // echo $_POST['searchMethod'];
-    // Database::CloseConnection();
     $selected = "0";
     if(isset($_POST['searchMethod']))
     {
@@ -101,40 +97,36 @@ require_once 'includes/classDatabase.php';
       switch($selected)
       {
         case '0':    
-        $array= Restaurant::GetRestaurantByName($txtSearch,$connection); 
+        $object= Restaurant::GetRestaurantByName($txtSearch); 
         // echo count($array);
-        if(count($array)>0)
+        if(count($object)>0)
         {
-          $_SESSION['searchedRestaurant'] = $array;
+          $_SESSION['searchedRestaurant'] = $object;
           // print_r($_SESSION['searchedRestaurant'] );
           header("Location:category.php");
         }
         else
         {
           echo "nothing found!";
-          // header("Location:category.php");
         }
               break;
         case '1': 
-        $array= Restaurant::GetRestaurantByCategory($txtSearch,$connection);
+        $object= Restaurant::GetRestaurantByCategory($txtSearch);
         // echo count($array);
         // foreach($array as $value)
         // {
         //   print_r ($value);
         // }
-        if(count($array)>0)
+        if(count($object)>0)
         {
           // print_r ($array);
-          $_SESSION['searchedRestaurant'] = $array;
+          $_SESSION['searchedRestaurant'] = $object;
           // print_r($_SESSION['searchedRestaurant'] );
           header("Location:category.php");
-
         }
         else
         {
           echo "nothing found!";
-          // header("Location:category.php");
-
         }
               break;
       }
@@ -142,6 +134,7 @@ require_once 'includes/classDatabase.php';
 
   }
 ?>
+
 
   <!-- restaurant lists -->
   <section id="section-about" class="section appear clearfix" style="margin-top:-20px">

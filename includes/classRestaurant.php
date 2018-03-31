@@ -1,5 +1,5 @@
 <?php
-require_once "classDatabase.php";
+require_once "classDatabase.PDO.php";
 
 class Restaurant{
 	private static $database;
@@ -33,7 +33,7 @@ class Restaurant{
 		}
 	}
 
-	public function GetRestaurants($connection )
+	public function GetRestaurants()
 	{
 		$arrayRestaurant = array();
 
@@ -52,40 +52,78 @@ class Restaurant{
 		
 	}
 
-	public function GetRestaurantByCategory($category,$connection)
+	public static function GetRestaurantByCategory($category)
 	{
-		$arrayRestaurant = array();
-		$sql="select * from restaurants where restaurantId in (select restaurantId from restaurantCategory where categoryId in (select categoryId from categories where name='$category'))";
+		self::init_database();
+		$connection = self::$database->GetConnection();
+	try
+	{
+
+		$sql="select * from restaurants where restaurantId in (select restaurantId from restaurantCategory where categoryId in (select categoryId from categories where name=?))";
 		// echo $sql;
-		$result = $connection->query($sql);
-		if($result->num_rows > 0)
+		$stmt = $connection->prepare($sql);
+		$stmt->bindParam(1,$category);
+		$stmt->execute();
+		$Obj = $stmt->fetchAll(PDO::FETCH_OBJ);
+		if($Obj)
+
 		{
-			while($row = $result->fetch_assoc()){
-				array_push($arrayRestaurant ,  $row);
-				// print_r($result);
-			}
+			return $Obj;
 		}
+		// $result = $connection->query($sql);
+		// if($result->num_rows > 0)
+		// {
+		// 	while($row = $result->fetch_assoc()){
+		// 		array_push($arrayRestaurant ,  $row);
+		// 		// print_r($result);
+		// 	}
+		// }
 
-		return $arrayRestaurant;
-
+		// return $arrayRestaurant;
+	}
+	catch(PDOException $e)
+	{
+		echo "Query Failed ".  $e->getMessage();
+	}
 
 	}
 
-	public function GetRestaurantByName($name,$connection)
+	public static function GetRestaurantByName($name)
 	{
-		$arrayRestaurant = array();
-		$sql='SELECT * from restaurants where name ="'.$name.'"';
-		$result = $connection->query($sql);
-		if($result->num_rows > 0)
+		self::init_database();
+		$connection = self::$database->GetConnection();
+		try 
 		{
-			while($row = $result->fetch_assoc())
-			{
-				array_push($arrayRestaurant ,  $row);
-			}
+		$arrayRestaurant = array();
+		$sql='SELECT * from restaurants where name =?';
+
+		$stmt = $connection->prepare($sql);
+		$stmt->bindParam(1,$name);
+		$stmt->execute();
+		$Obj = $stmt->fetchAll(PDO::FETCH_OBJ);
+		if($Obj)
+
+		{
+			return $Obj;
 		}
-		// print_r($result);
-		// $connection->CloseConnection();
-		return $arrayRestaurant;
+		// $result = $connection->query($sql);
+		// if($result->num_rows > 0)
+		// {
+		// 	while($row = $result->fetch_assoc())
+		// 	{
+		// 		array_push($arrayRestaurant ,  $row);
+		// 	}
+		// }
+		// // print_r($result);
+		// // $connection->CloseConnection();
+		// return $arrayRestaurant;
+	}
+	catch(PDOException $e)
+	{
+		echo "Query Failed ".  $e->getMessage();
+	}
+
+	
 	}
 
 

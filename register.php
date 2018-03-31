@@ -22,7 +22,7 @@ if (!isset($_SESSION)) session_start();
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
 <!-- php -->
-  <?php include 'includes/functions.php';?>
+  <?php include 'includes/classUser.php';?>
 
 
 </head>
@@ -41,7 +41,7 @@ if (!isset($_SESSION)) session_start();
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
-          <li><a href="city.php">search</a></li>
+
           <li class="active"><a href="index.php">Home</a></li>
           <li ><a href="login.php">Sign In</a></li>
           <li><a href="register.php">Sign Up</a></li>
@@ -83,14 +83,70 @@ if (!isset($_SESSION)) session_start();
 </section>
 
 <?php 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') 
+
+  // if(isset($_POST['submit'])){
+  //   $username = $_POST['username'];
+  //   $password = $_POST['password'];
+  //   $email = $_POST['email'];
+  //   if(! USER::Username_Exists($username)){
+  //     $newUser = new USER($username,$password, $email);
+  //     $newUser->Create();
+  //     echo "Query submitted";
+  //   }else{
+  //     echo "Error: Username already exists. Try again.";
+  //   }
+  // }
+  
+  // if(isset($_POST['delete_submit'])){
+  //   $username = $_POST['username'];
+  //   $password = $_POST['password'];
+    
+  //   if( USER::User_Exists($username, $password)){
+  //     USER::Delete_User($username);
+  //     echo "User Account deleted";
+  //   }else{
+  //     echo "Error: User does not exist. Try again.";
+  //   }
+  // }
+
+
+  if(isset($_POST['register']))
+{
+  $_SESSION['email'] = $_POST['email'];
+  $_SESSION['user_name'] = $_POST['user_name'];
+  $_SESSION['password'] = $_POST['password'];
+
+  $username = $_POST['user_name'];
+  $password = $_POST['password'];
+  $email=$_POST['email'];
+  
+
+  if(USER::Username_Exists($username))
   {
-      if (isset($_POST['register'])) { //user registering
-          
-          register_function();
-          
-      }
+    echo "Error: Username  already exists. Try again.";
+    exit();
   }
+  elseif(USER::Email_Exists($email))
+  {
+    echo "Error: Email  already exists. Try again.";
+    exit();
+  }
+  else
+  {
+    $newUser = new USER($username,$password, $email);
+    $newUser->Create();
+    echo "You are registered successfully!";
+    echo "You will be directed to the home page in 3 seconds...";
+    echo "<script>
+    setTimeout(function(){
+      window.location.href='index.php';
+    },2000)
+    </script>"; 
+  }  
+
+  }
+
+
 
 ?>
 

@@ -22,7 +22,12 @@ if (!isset($_SESSION)) session_start();
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
 <!-- php -->
-<?php include 'includes/functions.php';?>
+<?php 
+require_once 'includes/functions.php';
+require_once 'includes/classCity.php';
+require_once 'includes/classRestaurant.php';
+require_once 'includes/classCategory.php'
+?>
 </head>
 
 <body>
@@ -39,7 +44,6 @@ if (!isset($_SESSION)) session_start();
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
-          <li><a href="#section-about">search</a></li>
           <li class="active"><a href="index.php">Home</a></li>
           <li ><a href="login.php">Sign In</a></li>
           <li><a href="register.php">Sign Up</a></li>
@@ -53,13 +57,14 @@ if (!isset($_SESSION)) session_start();
   <?php
   // $searchedRestaurant=$_SESSION['searchedRestaurant'];
   $chosenRestaurant=$_GET['chosenRestaurant'];
-  $restaurantDetail=GetRestaurantByName($chosenRestaurant);
+  $restaurantDetail=Restaurant::GetRestaurantByName($chosenRestaurant);
   foreach($restaurantDetail as $value)
   { 
   $restaurantDetail=$value;
   }   
-  $arrayCategory = GetCategoryByRestaurant($chosenRestaurant);
-  $arrayCity= GetCityyByRestaurant($chosenRestaurant);
+  $arrayCategory =Category:: GetCategoryByRestaurant($chosenRestaurant);
+  // $arrayCity= GetCityyByRestaurant($chosenRestaurant);
+  $arrayCity=City::GetCityByRestaurant($chosenRestaurant);
 
   ?>
   <section id="intro" style="height:150px;background:#e0e0d2" >
@@ -67,7 +72,7 @@ if (!isset($_SESSION)) session_start();
       <div class="col-sm-2" style="margin:auto;">
       <?php     
     // print_r ($restaurantArray);
-      echo '<img src="'.$restaurantDetail['picture'].'" alt="" style="height:100px">';
+      echo '<img src="'.$restaurantDetail->picture.'" alt="" style="height:100px">';
       ?>  
       </div>
       <div class="col-sm-8" style="text-align:left;align-items: center;margin:auto">
@@ -78,13 +83,20 @@ if (!isset($_SESSION)) session_start();
       //category 
      foreach($arrayCategory as $value)
       {
-        echo $value["name"]." ";
+        echo $value->name." ";
       }
-      echo "|";
+ 
       //city 
+
+      $arrayCity=City::GetCityByRestaurant($chosenRestaurant);
+      // print_r ($arrayCity);
+      if($arrayCity)
+      {  
+        echo "|";
       foreach($arrayCity as $value)
       {
-        echo $value["name"]." ";
+        echo $value->name." ";
+      }
       }
       ?>
       </div>
@@ -118,7 +130,7 @@ if (!isset($_SESSION)) session_start();
       </div>
     <div class="col-sm-3">
       <?php
-      echo $restaurantDetail['style']. "<br>Opening: ".$restaurantDetail['openingHour']. "<br>Closing: ". $restaurantDetail['closingHour']. "<br>". $restaurantDetail['phoneNumber'];
+      echo $restaurantDetail->style. "<br>Opening: ".$restaurantDetail->openingHour. "<br>Closing: ". $restaurantDetail->closingHour. "<br>". $restaurantDetail->phoneNumber;
       
       ?>
   
