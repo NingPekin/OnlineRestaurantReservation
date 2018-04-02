@@ -555,25 +555,24 @@
         
 		echo "<table border=0 width='750'>";
         echo "<tr>";
-        echo "<th><h4 style = 'font-weight: bold;'>Donor Name</h4></th>";
-		echo "<th><h4 style = 'font-weight: bold;'>Phone</h4></th>";
-        echo "<th><h4 style = 'font-weight: bold;'>Email</h4></th>";
-		echo "<th><h4 style = 'font-weight: bold;'>Blood</h4></th>";
+        echo "<th><h4 style = 'font-weight: bold;'>User</h4></th>";
+		echo "<th><h4 style = 'font-weight: bold;'>Create Time</h4></th>";
+        echo "<th><h4 style = 'font-weight: bold;'>Rate</h4></th>";
+		echo "<th><h4 style = 'font-weight: bold;'>Review</h4></th>";
         echo "</tr>";
         
 	   foreach($array as $value){
 		   
-		   $name  = $value['Name'];
-		   $phone = $value['Phone'];
-		   $email = $value['Email'];
-		   $blood_id  = $value['Blood_ID'];
-           $bloodType = getBlood_Type($blood_id);   
+		   $userId = $value['userId'];
+		   $createTime = $value['createTime'];
+		   $review  = $value['review'];
+           $rate =  $value['rate'];   
 	    		
 		   echo "<tr>";
-		   echo "<td style='width:30%' ><h4>".$name."</h4></td>";
-           echo "<td style='width:25%' ><h4>".$phone."</h4></td>";
-           echo "<td style='width:35%' ><h4>".$email."</h4></td>";
-           echo "<td style='width:10%' ><h4><font color=#CC0000>".$bloodType."</font></h4></td>";
+		   echo "<td style='width:30%' ><h4>".$userId."</h4></td>";
+           echo "<td style='width:25%' ><h4>".$createTime."</h4></td>";
+           echo "<td style='width:35%' ><h4>".$rate."</h4></td>";
+           echo "<td style='width:10%' ><h4><font color=#CC0000>".$review."</font></h4></td>";
 		   echo "</tr>";					
 		}
         echo "</table>";

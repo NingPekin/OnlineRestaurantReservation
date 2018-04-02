@@ -61,7 +61,6 @@ require_once 'includes/classDatabase.php';
     </div>
   </section>
 
-  <!-- search -->
 <!-- search -->
 <section id="search" class="appear">
   <form action="" method="post"> 

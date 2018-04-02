@@ -110,8 +110,13 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
             {
               echo "You are successfully logged in";
               echo "You will be directed to the home page in 3 seconds...";
+              $obj=USER::Get_Users_By_Username($username);
+              print_r($obj);
+              $_SESSION['user_id']=$obj->userId;
+              $_SESSION['email']=$obj->email;
               $_SESSION['user_name']=$username;
               $_SESSION['password']=$password;
+              // $_SESSION['favList']=USER::
               $_SESSION['logged_in']=true;
               echo "<script>
               setTimeout(function(){
@@ -136,6 +141,8 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
             {
               echo "You are successfully logged in";
               echo "You will be directed to the home page in 3 seconds...";
+              $obj=USER::Get_Users_By_Email($email);
+              $_SESSION['user_id']=$obj->userId;
               $_SESSION['user_name']=$username;
               $_SESSION['email']=$email;
               $_SESSION['logged_in']=true;

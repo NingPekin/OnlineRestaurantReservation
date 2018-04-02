@@ -17,8 +17,11 @@ if (!isset($_SESSION)) session_start();
   <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen">
   <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,400italic,700|Open+Sans:300,400,600,700">
-
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/star.css">
+
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
 <!-- php -->
@@ -26,8 +29,16 @@ if (!isset($_SESSION)) session_start();
 require_once 'includes/functions.php';
 require_once 'includes/classCity.php';
 require_once 'includes/classRestaurant.php';
-require_once 'includes/classCategory.php'
+require_once 'includes/classCategory.php';
+require_once 'includes/classTable.php';
+require_once 'includes/classReservation.php';
+require_once 'includes/classRestaurantUser.php';
+
 ?>
+
+
+
+
 </head>
 
 <body>
@@ -56,6 +67,10 @@ require_once 'includes/classCategory.php'
 
   <?php
   // $searchedRestaurant=$_SESSION['searchedRestaurant'];
+  $numOfPeople;
+  $reserveDate;
+  $reserveTime;
+
   $chosenRestaurant=$_GET['chosenRestaurant'];
   $restaurantDetail=Restaurant::GetRestaurantByName($chosenRestaurant);
   foreach($restaurantDetail as $value)
@@ -67,123 +82,272 @@ require_once 'includes/classCategory.php'
   $arrayCity=City::GetCityByRestaurant($chosenRestaurant);
 
   ?>
-  <section id="intro" style="height:150px;background:#e0e0d2" >
-    <div class="row" style="margin:100px;font-size:30px">	
+  <section id="intro-restaurant" style="height:auto;background:#e0e0d2;margin-top:110px">
+    <div class="row" style="margin:110px;font-size:30px">	
       <div class="col-sm-2" style="margin:auto;">
       <?php     
     // print_r ($restaurantArray);
-      echo '<img src="'.$restaurantDetail->picture.'" alt="" style="height:100px">';
+      echo '<br><img src="'.$restaurantDetail->picture.'" alt="" style="height:120px;align-items:center;">';
       ?>  
       </div>
       <div class="col-sm-8" style="text-align:left;align-items: center;margin:auto">
      <?php
-      echo $chosenRestaurant.'<br>';
+      echo '<br><h3>'.$chosenRestaurant.'</h3>';
       //rate
-      echo "rate".'<br>';
+      $rate=round(doubleval(RestaurantUser::GetRateByRestaurant($restaurantDetail->restaurantId)['AVG(rate)']),2);
+      echo "<h4> Rate: ".$rate."</h4>";
       //category 
+      echo "<h4>";
      foreach($arrayCategory as $value)
       {
         echo $value->name." ";
       }
- 
+      echo "</h4>";
       //city 
-
       $arrayCity=City::GetCityByRestaurant($chosenRestaurant);
       // print_r ($arrayCity);
+      echo "<h4>";
       if($arrayCity)
       {  
-        echo "|";
       foreach($arrayCity as $value)
       {
         echo $value->name." ";
       }
+      echo "</h4>";
+
       }
       ?>
-      </div>
+    </div>
       <div class="col-sm-2" style="text-align:left;margin:auto">
-      Add to favorites
+      <form method="post">
+      <button name="addToFav" style="border:none;background-color:transparent;outline:none" class="btn btn-default btn-lg">
+      <span class="glyphicon glyphicon-heart"></span> Add to favorites 
+      </button>
+    </form>
       </div>	
     </div>
   </section>
+    <!-- //add to favourite -->
+    <?php
+    if(isset($_POST['addToFav']))
+    {
+      // echo $_SESSION["user_id"];
+      // echo $restaurantDetail->restaurantId;
 
-  <!-- about -->
-  <section id="section-about" class="section appear clearfix">
+      USER::AddFavouriteToUser($restaurantDetail->restaurantId,$_SESSION["user_id"]);
+    }
+    ?>
 
-    <div class="container">
-    <div class="row">
-    <div class=" col-sm-8">
-        <div class="col-md-offset-3 col-md-6">
-          <div class="section-header">
-            <h4 class="section-heading animated" data-animation="bounceInUp">Make a reservation </h4>
-          </div>
-        </div>
-        <div class="col-md-offset-3 col-md-6">
-          how many people |
-          date |
-          time |
-          button find a table |
-       
-        <h3>function return if has table</h3>
-        <h3>other avaibility time on the other day(in 5 days)</h3> 
-        </div>
+  <section id="section-reservation" style="margin-top:-80px">
+     <div class="row">
+        <!-- make reservation area -->
+        <form action="" method="post">
+           <!-- <div class=" col-sm-8">
+              <div class="col-md-offset-3 col-md-6"> -->
+                 <div class="section-header">
+                    <h4 class="section-heading animated" data-animation="bounceInUp">Make a reservation </h4>
+                 </div>
+              </div>
+              <div id="reservationChoice" class="col-md-offset-3 col-md-6">
+              <!-- number of people -->
+                 <select name='numOfPeople'>
+                 <?php
+                 for ($x=0;$x<12;$x++)
+                 {
+                   $y=$x+1;
+                  echo  "<option value='$x'>$y People </option>";
+                 }
+                  ?>
+                 </select>
+
+              <!-- date in 14 days-->
+              <select name="reserveDate">
+                <?php
+                $date = time();
+                $num_days = 14;
+                for($i=0; $i<=$num_days; ++$i)
+                {
+                    $date = mktime(0, 0, 0, date("m")  , date("d")+$i, date("Y"));
+                    $date = date('Y-m-d', $date);
+                    echo "     <option value='{$date}'>{$date}</option>\n";
+                }
+                ?>
+            <!-- time  -->
+            </select>
+            <select name="reserveTime">
+            <?php
+            //  the interval for hours is '1'
+            for($hours=$restaurantDetail->openingHour; $hours<$restaurantDetail->closingHour; $hours++) 
+            {
+          // the interval for mins is '30' 
+              for($mins=0; $mins<60; $mins+=30)
+              { 
+                $time=str_pad($hours,2,'0',STR_PAD_LEFT).':'
+                .str_pad($mins,2,'0',STR_PAD_LEFT);
+        echo '<option value='.$time.'>'.$time.'</option>';
+             }
+            }
+            ?>
+            </select>
+
+          <!-- button find a table -->
+          <button name="find_table" class="btn btn-primary" type="submit">
+        <span class="glyphicon glyphicon-search">  Find a Table </span>
+        </button>
+              </div>
+           </div>
+     </div>
+  <!-- </div>
+  </div> -->
+  </form>
+
+  <div class="col-sm-3">
+     <?php
+        echo $restaurantDetail->style. "<br>Open at: ".$restaurantDetail->openingHour. "<br>Close at: ". $restaurantDetail->closingHour. "<br>Tel: ". $restaurantDetail->phoneNumber;
         
-      </div>
-    <div class="col-sm-3">
-      <?php
-      echo $restaurantDetail->style. "<br>Opening: ".$restaurantDetail->openingHour. "<br>Closing: ". $restaurantDetail->closingHour. "<br>". $restaurantDetail->phoneNumber;
-      
-      ?>
+        ?>
+
+  </div>
+  </div>
+</section>
   
-      price
-    </div>
-    
-    </div>
-    </div>
-  </section>
-  <!-- /about -->
+  <!-- function for find a table -->
+<?php
+  // if(isset($_POST['numOfPeople'])&&isset($_POST['date'])&&isset($_POST['time']))
+  if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) 
+  {
+  if(isset($_POST['find_table']))
+  
+  {
+    $numOfPeople=$_POST['numOfPeople']+1;
+    $reserveDate=$_POST['reserveDate'];
+    $reserveTime=$_POST['reserveTime'];
+ 
+    // check in chosen date and time, there is any reservation.
+    // if has, check if there is any other table match criteria, and select one, if has valid table,return 
+   if( Table::Exist_Reservation($reserveDate,$reserveTime))
+   {
+    //  echo"exist rev";
+      $obj=Table::ValidTableCompare($restaurantDetail->restaurantId,$numOfPeople,$reserveDate,$reserveTime);
+     if($obj)
+     {
+      // print_r($obj1);
+      // echo "valid1";
+      $makeReservation=
+      "<script>var r=confirm('$restaurantDetail->name,$numOfPeople People at $reserveTime, $reserveDate.\\nClick OK to confirm your reservation');
+      if(r)
+      {
+        ".Reservation::Create($_SESSION["user_id"],$reserveDate,$reserveTime,$numOfPeople,$obj->tableId)."
+      }
+      else
+      {
+      alert('cancle');
+      }
+      </script>";
+      echo $makeReservation;
+    }
+    else
+    {
+      echo "No table available!";
+    }
+   }
+
+  //  don't have any rdv, chose one of table match creteria
+   else
+   {
+    // echo "valid2";
+    // echo "numpeope".$numOfPeople;
+    $obj=Table::ValidTable($restaurantDetail->restaurantId,$numOfPeople);
+    // print_r($obj->tableId);
+    echo "<script>var r=confirm('$restaurantDetail->name,$numOfPeople People at $reserveTime, $reserveDate.\\nClick OK to confirm your reservation');
+    if(r)
+      {
+        ".Reservation::Create($_SESSION["user_id"],$reserveDate,$reserveTime,$numOfPeople,$obj->tableId)."
+
+    }
+    else
+    {
+    alert('cancle');
+    }
+    </script>";
+
+
+   }
+
+  }
+}
+else
+{
+  echo "<script>alert('You have to log in at first!')</script>";
+}
+?>
+
+<div class="container">
+<div class="row" style="margin-top:40px;">
+<div class="col-md-6">
+
+<?php
+$arrayReview=RestaurantUser::GetReviewByRestaurant($restaurantDetail->restaurantId);
+if($arrayReview)
+{
+display($arrayReview);
+}
+else
+{
+  echo "no comment for now";
+}
+
+?>
+</div>
+</div>
+</div>
+
+
+<div class="container">
+	<div class="row" style="margin-top:40px;">
+		<div class="col-md-6">
+    	<div class="well well-sm">        
+            <div class="row" id="post-review-box" style="">
+                <div class="col-md-12">
+                    <form accept-charset="UTF-8" action="" method="post">
+                        <textarea class="form-control animated" cols="50" id="new-review" name="comment_area" placeholder="Enter your review here..." rows="5"></textarea>
+                        <div class="text-right stars">
+                          <input class="star star-5" id="star-5" type="radio" name="star" value="5"/>
+                          <label class="star star-5" for="star-5"></label>
+                          <input class="star star-4" id="star-4" type="radio" name="star" value="4"/>
+                          <label class="star star-4" for="star-4"></label>
+                          <input class="star star-3" id="star-3" type="radio" name="star" value="3"/>
+                          <label class="star star-3" for="star-3"></label>
+                          <input class="star star-2" id="star-2" type="radio" name="star" value="2"/>
+                          <label class="star star-2" for="star-2"></label>
+                          <input class="star star-1" id="star-1" type="radio" name="star" value="1"/>
+                          <label class="star star-1" for="star-1"></label>
+                        </div>
+                            <button class="btn btn-success btn-lg" type="submit" name="save_review">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>  
+		</div>
+	</div>
+</div>
+
+<?php
+
+if(isset($_POST["save_review"])&&isset($_POST["star"])&&isset($_POST["comment_area"]))
+{
+  $comment=$_POST["comment_area"];
+  $rate=$_POST["star"];
+  // echo $_POST["star"];
+  // echo $_POST["comment_area"];
+  RestaurantUser::Create($restaurantDetail->restaurantId,$_SESSION["user_id"],date('Y-m-d H:i:s'),$comment,$rate);
+}
 
 
 
+?>
 
-  <section id="footer" class="section footer">
-    <div class="container">
-      <div class="row animated opacity mar-bot20" data-andown="fadeIn" data-animation="animation">
-        <div class="col-sm-12 align-center">
-          <ul class="social-network social-circle">
-            <li><a href="#" class="icoRss" title="Rss"><i class="fa fa-rss"></i></a></li>
-            <li><a href="#" class="icoFacebook" title="Facebook"><i class="fa fa-facebook"></i></a></li>
-            <li><a href="#" class="icoTwitter" title="Twitter"><i class="fa fa-twitter"></i></a></li>
-            <li><a href="#" class="icoGoogle" title="Google +"><i class="fa fa-google-plus"></i></a></li>
-            <li><a href="#" class="icoLinkedin" title="Linkedin"><i class="fa fa-linkedin"></i></a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="row align-center mar-bot20">
-        <ul class="footer-menu">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">About us</a></li>
-          <li><a href="#">Privacy policy</a></li>
-          <li><a href="#">Get in touch</a></li>
-        </ul>
-      </div>
-      <div class="row align-center copyright">
-        <div class="col-sm-12">
-          <p>Copyright &copy; All rights reserved</p>
-        </div>
-      </div>
-      <div class="credits">
-        <!--
-          All the links in the footer should remain intact.
-          You can delete the links only if you purchased the pro version.
-          Licensing information: https://bootstrapmade.com/license/
-          Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Vlava
-        -->
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade.com</a>
-      </div>
-    </div>
-
-  </section>
-  <a href="#header" class="scrollup"><i class="fa fa-chevron-up"></i></a>
 
   <!-- Javascript Library Files -->
   <script src="js/modernizr-2.6.2-respond-1.1.0.min.js"></script>
@@ -199,7 +363,7 @@ require_once 'includes/classCategory.php'
   <script src="js/stellar.js"></script>
   <script src="js/jquery.appear.js"></script>
   <script src="js/jquery.flexslider-min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8HeI8o-c1NppZA-92oYlXakhDPYR7XMY"></script>
+
 
   <!-- Contact Form JavaScript File -->
   <script src="contactform/contactform.js"></script>

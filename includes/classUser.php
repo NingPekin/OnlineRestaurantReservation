@@ -8,16 +8,16 @@ class User{
 	private $password;
 	private $email;
 	private $hash;
-
+	public $favList;
 	
 	function __construct($username,$password,$email, $hash=null,$userId = null)
 	{
+
 		$this->userId=$userId;
 		$this->username = $username;
 		$this->password = $password;
 		$this->email = $email;
 		$this->hash = $hash;
-
 	}
 
 	private static function init_database(){
@@ -195,21 +195,120 @@ class User{
 			}
 		}
 
-	public static function ReadUsers(){
-		$arrayUsers = array();
+	public static function Get_Users_By_Username($username)
+	{
 		self::init_database();
 		$connection = self::$database->GetConnection();
-		$sql  = "SELECT * FROM users";
-		$result = $connection->query($sql);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				array_push($arrayUsers ,  $row);
-				// print_r($row);
-				// $arrayCars += [$row['Make'] => $row];
+		try{
+			$query = "SELECT * FROM users WHERE username = '$username'";			
+			$stmt = $connection->prepare($query);
+			$stmt->execute();
+			$userObj = $stmt->fetch(PDO::FETCH_OBJ);
+			if($userObj)
+			{
+
+			return $userObj;
+			}
+		}catch(PDOException $e){
+			echo "Query Failed ".$e->getMessage();
+		}
+	}
+
+	public static function Get_Users_By_Email($email)
+	{
+		self::init_database();
+		$connection = self::$database->GetConnection();
+		try{
+			$query = "SELECT * FROM users WHERE email = '$email'";			
+			$stmt = $connection->prepare($query);
+			$stmt->execute();
+			$userObj = $stmt->fetchAll(PDO::FETCH_OBJ);
+			if($userObj)
+			{
+			return $userObj;
+			}
+		}catch(PDOException $e){
+			echo "Query Failed ".$e->getMessage();
+		}
+	}
+	public static function Exist_List($restaurantId,$userId)
+	{
+		$obj=self::Get_Favourite_By_User($userId);
+		if($obj)
+		{
+		// print_r ($obj);
+		foreach($obj as $value)
+		{
+			// print_r($value);
+			if($value->restaurantId==$restaurantId)
+			{
+				return true;
+				
 			}
 		}
-		return $arrayUsers;
+		return false;
+		}
+		return false;
+		
 	}
+
+	public static function AddFavouriteToUser($restaurantId,$userId)
+	{
+		if(!self::Exist_List($restaurantId,$userId))
+		{	
+
+		self::init_database();
+		$connection = self::$database->GetConnection();
+	try
+	{
+        $sql="INSERT INTO favourites (restaurantId,userId) ";
+        $sql.="VALUES(?,?)";
+		// echo $sql;
+		$stmt = $connection->prepare($sql);
+		$stmt->bindParam(1,$restaurantId);
+		$stmt->bindParam(2,$userId);
+		$stmt->execute();
+		echo "<script>alert('Added Successfully!')</script>";
+
+        return $connection-> lastInsertId();
+
+	}
+	catch(PDOException $e)
+	{
+		echo "Query Failed ".  $e->getMessage();
+	}
+}
+else
+{
+	echo "<script>alert('Already in your list')</script>";
+}
+
+}
+		
+	
+
+	public static function Get_Favourite_By_User($userId)
+	{
+		self::init_database();
+		$connection = self::$database->GetConnection();
+		try{
+			$query = "SELECT * FROM favourites WHERE userId = $userId";			
+			$stmt = $connection->prepare($query);
+			$stmt->execute();
+			$obj = $stmt->fetchAll(PDO::FETCH_OBJ);
+			if($obj)
+			{
+			// print_r($obj);
+			return $obj;
+			}
+		}catch(PDOException $e){
+			echo "Query Failed ".$e->getMessage();
+		}
+	}
+
+
+
+
 
 }
 
