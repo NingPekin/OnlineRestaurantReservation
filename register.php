@@ -80,6 +80,7 @@ if (!isset($_SESSION)) session_start();
     
     <button type="submit" name="register" class="button button-block"/>Register</button> 
     </form>
+    
 </section>
 
 <?php 
@@ -164,7 +165,7 @@ if (!isset($_SESSION)) session_start();
   <script src="js/stellar.js"></script>
   <script src="js/jquery.appear.js"></script>
   <script src="js/jquery.flexslider-min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8HeI8o-c1NppZA-92oYlXakhDPYR7XMY"></script>
+
 
   <!-- Contact Form JavaScript File -->
   <script src="contactform/contactform.js"></script>

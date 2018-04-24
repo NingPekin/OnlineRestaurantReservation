@@ -1,28 +1,8 @@
-<?php
-// Start the session
-if (!isset($_SESSION)) session_start();
-if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) 
-{
-  echo  $_SESSION['logged_in'];
-  echo "<script>var r=confirm('Dear ".$_SESSION['user_name'].":  You already loggin. Click Ok to logout');
-  if(r==true)
-  {";
-
-    session_destroy();
-    echo "
-
-  } 
-  window.location.href='index.php';
-  </script>";
-
-} 
-
-
-
-?>
 <!DOCTYPE html>
 <html>
-
+<?php
+if (!isset($_SESSION)) session_start();
+?>
 <head>
   <!-- BASICS -->
   <meta charset="utf-8">
@@ -39,8 +19,12 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
   <link rel="stylesheet" href="css/style.css">
   <!-- skin -->
   <link rel="stylesheet" href="skin/default.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+
 <!-- php -->
   <?php include 'includes/classUser.php';?>
+
 
 </head>
 
@@ -93,7 +77,9 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
   </form>
 </section>
 
+
 <?php 
+
       $selected=0;
       if(isset($_POST['login']))
       {
@@ -108,16 +94,17 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
             //check username match password
             if(User::User_Exists_UserName($username,$password))
             {
-              echo "You are successfully logged in";
+              echo "You are successfully logged in"."<br>";
               echo "You will be directed to the home page in 3 seconds...";
               $obj=USER::Get_Users_By_Username($username);
-              print_r($obj);
+              // print_r($obj);
               $_SESSION['user_id']=$obj->userId;
               $_SESSION['email']=$obj->email;
               $_SESSION['user_name']=$username;
               $_SESSION['password']=$password;
               // $_SESSION['favList']=USER::
-              $_SESSION['logged_in']=true;
+              $_SESSION['logged_in']=1;
+
               echo "<script>
               setTimeout(function(){
                 window.location.href='index.php';
@@ -145,7 +132,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
               $_SESSION['user_id']=$obj->userId;
               $_SESSION['user_name']=$username;
               $_SESSION['email']=$email;
-              $_SESSION['logged_in']=true;
+              $_SESSION['logged_in']=1;
               echo "<script>
               setTimeout(function(){
                 window.location.href='index.php';
@@ -166,7 +153,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
 
   <!-- Javascript Library Files -->
   <script src="js/modernizr-2.6.2-respond-1.1.0.min.js"></script>
-  <script src="js/jquery.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="js/jquery.easing.1.3.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/jquery.isotope.min.js"></script>

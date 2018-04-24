@@ -2,31 +2,23 @@
 <?php
 // Start the session
 if (!isset($_SESSION)) session_start();
+$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+if (isset($_GET['logout']))
+{
+ $_SESSION['logged_in']=0;
+
+}
 ?>
 <html>
 
 <head>
-  <!-- BASICS -->
-  <meta charset="utf-8">
-  <title>Online Resturant Reservation</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="js/rs-plugin/css/settings.css" media="screen">
-  <link rel="stylesheet" type="text/css" href="css/isotope.css" media="screen">
-  <link rel="stylesheet" href="css/flexslider.css" type="text/css">
-  <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen">
-  <link rel="stylesheet" href="css/bootstrap.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,400italic,700|Open+Sans:300,400,600,700">
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <!-- skin -->
-  <link rel="stylesheet" href="skin/default.css">
 
 <!-- php -->
 <?php 
 require_once 'includes/functions.php';
 require_once 'includes/classRestaurant.php';
-
+require_once 'includes/header.php';
 
 ?>
 
@@ -48,8 +40,10 @@ require_once 'includes/classRestaurant.php';
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
 
           <li class="active"><a href="index.php">Home</a></li>
-          <li ><a href="login.php">Sign In</a></li>
-          <li><a href="register.php">Sign Up</a></li>
+          <li id="login"><a href="login.php">Sign In</a></li>
+          <li id="signup"><a href="register.php">Sign Up</a></li>
+          <li id="logout" style="display:none"><a href="<?php echo $url.'&logout=true'; ?>">Log Out</a></li>
+
           <li><a href="#section-contact">en</a></li>
         </ul>
       </div>
@@ -62,29 +56,38 @@ require_once 'includes/classRestaurant.php';
     </div>
   </section>
   
-<!-- search -->
-  <section id="search" class="appear">
-  <form action="" method="post"> 
-  <div class="row">
-    <div class="col-xs-6">
-      <div class="input-group">
-      <input name="txtSearch" type="text" class="form-control" placeholder="Search" id="txtSearch"/>
-      <select name='searchMethod'>
-      <option value = "0" > by name </option>
-      <option value = "1"> by category </option>
-    </select>
-   <div class="input-group-btn">
-        <button name="search" class="btn btn-primary" type="submit">
-        <span class="glyphicon glyphicon-search"></span>
-        </button>
-   </div>
-   </div>
-    </div>
-  </div>
-</form>
-</section>
-
+	<section class="appear" id="search">
+		<form action="" method="post">
+			<div class="row">
+				<div class="col-xs-6 col-sm-4 text-right">
+					<select name='searchMethod'>
+						<option value="0">
+							by name
+						</option>
+						<option value="1">
+							by category
+						</option>
+					</select>
+				</div>
+				<div class="col-xs-6 col-sm-4">
+					<input class="form-control" id="txtSearch" name="txtSearch" placeholder="Search" type="text">
+				</div>
+				<div class="col-xs-6 col-sm-4">
+					<button class="btn btn-primary" name="search" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+				</div>
+			</div>
+		</form>
+	</section>
 <?php
+    //is logged in
+    if($_SESSION["logged_in"]==1)
+    {
+      echo("<script>
+      document.getElementById('signup').style.display='none';
+      document.getElementById('login').style.display='none';
+      document.getElementById('logout').style.display='block';
+      </script>");
+    }
 
   if(isset($_POST['search']))
   {

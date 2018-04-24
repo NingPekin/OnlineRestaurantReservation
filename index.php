@@ -1,28 +1,22 @@
 <?php
 // Start the session
 if (!isset($_SESSION)) session_start();
+
+if (isset($_GET['logout']))
+{
+ $_SESSION['logged_in']=0;
+
+}
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
-  <!-- BASICS -->
-  <meta charset="utf-8">
-  <title>Online Resturant Reservation</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="js/rs-plugin/css/settings.css" media="screen">
-  <link rel="stylesheet" type="text/css" href="css/isotope.css" media="screen">
-  <link rel="stylesheet" href="css/flexslider.css" type="text/css">
-  <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen">
-  <link rel="stylesheet" href="css/bootstrap.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,400italic,700|Open+Sans:300,400,600,700">
-
-  <link rel="stylesheet" href="css/style.css">
-  <!-- skin -->
-  <link rel="stylesheet" href="skin/default.css">
   <!-- php -->
-  <?php include 'includes/functions.php';?>
+  <?php 
+  include 'includes/functions.php';
+  include 'includes/header.php';
+  ?>
 
 </head>
 
@@ -41,8 +35,9 @@ if (!isset($_SESSION)) session_start();
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
           <li class="active"><a href="index.php">Home</a></li>
-          <li ><a href="login.php">Sign In</a></li>
-          <li><a href="register.php">Sign Up</a></li>
+          <li id="login"><a href="login.php">Sign In</a></li>
+          <li id="signup"><a href="register.php">Sign Up</a></li>
+          <li id="logout" style="display:none"><a href="index.php?logout=true">Log Out</a></li>
           <li><a href="#section-contact">en</a></li>
         </ul>
       </div>
@@ -53,7 +48,7 @@ if (!isset($_SESSION)) session_start();
   <section id="intro">
     <div class="intro-content">
       <h2>Reserve your table at home</h2>
-      <h3>Effcient, Convient and Fast</h3>
+      <h3>Efficient, Convient and Fast</h3>
     </div>
   </section>
 
@@ -90,7 +85,16 @@ if (!isset($_SESSION)) session_start();
         // City::GetAllCities();
           displayAllCitiest();
           if(isset($_GET['chosenCity'])){$_SESSION['chosenCity'] = $_GET['chosenCity'];}
-        
+          //is logged in
+          if($_SESSION["logged_in"]==1)
+          {
+            echo("<script>
+            document.getElementById('signup').style.display='none';
+            document.getElementById('login').style.display='none';
+            document.getElementById('logout').style.display='block';
+            </script>");
+          }
+
         ?>
 
             </div>
@@ -101,8 +105,6 @@ if (!isset($_SESSION)) session_start();
     </div>
   </section>
             
-    
-    
 
   <!-- contact -->
   <section id="section-contact" class="section appear clearfix">
@@ -212,8 +214,6 @@ if (!isset($_SESSION)) session_start();
 
   <!-- Contact Form JavaScript File -->
   <script src="contactform/contactform.js"></script>
-
-  <!-- Template Main Javascript File -->
   <script src="js/main.js"></script>
 
 </body>

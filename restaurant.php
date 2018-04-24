@@ -2,28 +2,21 @@
 <?php
 // Start the session
 if (!isset($_SESSION)) session_start();
+$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+if (isset($_GET['logout']))
+{
+ $_SESSION['logged_in']=0;
+
+}
+
+//unset restaurant 
+
 ?>
 <html>
 
 <head>
-  <!-- BASICS -->
-  <meta charset="utf-8">
-  <title>Online Resturant Reservation</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="js/rs-plugin/css/settings.css" media="screen">
-  <link rel="stylesheet" type="text/css" href="css/isotope.css" media="screen">
-  <link rel="stylesheet" href="css/flexslider.css" type="text/css">
-  <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen">
-  <link rel="stylesheet" href="css/bootstrap.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,400italic,700|Open+Sans:300,400,600,700">
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
-  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/star.css">
-
-  <!-- skin -->
-  <link rel="stylesheet" href="skin/default.css">
 <!-- php -->
 <?php 
 require_once 'includes/functions.php';
@@ -33,11 +26,8 @@ require_once 'includes/classCategory.php';
 require_once 'includes/classTable.php';
 require_once 'includes/classReservation.php';
 require_once 'includes/classRestaurantUser.php';
-
+require_once 'includes/header.php';
 ?>
-
-
-
 
 </head>
 
@@ -56,8 +46,10 @@ require_once 'includes/classRestaurantUser.php';
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" data-0="margin-top:20px;" data-300="margin-top:5px;">
           <li class="active"><a href="index.php">Home</a></li>
-          <li ><a href="login.php">Sign In</a></li>
-          <li><a href="register.php">Sign Up</a></li>
+          <li id="login"><a href="login.php">Sign In</a></li>
+          <li id="signup"><a href="register.php">Sign Up</a></li>
+          <li id="logout" style="display:none"><a href="<?php echo $url.'&logout=true'; ?>">Log Out</a></li>
+
           <li><a href="#section-contact">en</a></li>
         </ul>
       </div>
@@ -66,6 +58,17 @@ require_once 'includes/classRestaurantUser.php';
   </div>
 
   <?php
+
+    //is logged in
+    if($_SESSION["logged_in"]==1)
+    {
+      echo("<script>
+      document.getElementById('signup').style.display='none';
+      document.getElementById('login').style.display='none';
+      document.getElementById('logout').style.display='block';
+      </script>");
+    }
+
   // $searchedRestaurant=$_SESSION['searchedRestaurant'];
   $numOfPeople;
   $reserveDate;
@@ -131,11 +134,19 @@ require_once 'includes/classRestaurantUser.php';
     <?php
     if(isset($_POST['addToFav']))
     {
+      if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == 1) 
+      {
       // echo $_SESSION["user_id"];
       // echo $restaurantDetail->restaurantId;
 
       USER::AddFavouriteToUser($restaurantDetail->restaurantId,$_SESSION["user_id"]);
     }
+    else
+    {
+      echo "<script>alert('You have to log in at first!')</script>";
+    }
+  }
+
     ?>
 
   <section id="section-reservation" style="margin-top:-80px">
@@ -191,7 +202,7 @@ require_once 'includes/classRestaurantUser.php';
             </select>
 
           <!-- button find a table -->
-          <button name="find_table" class="btn btn-primary" type="submit">
+          <button name="find_table" class="btn btn-primary" type="submit" >
         <span class="glyphicon glyphicon-search">  Find a Table </span>
         </button>
               </div>
@@ -213,12 +224,13 @@ require_once 'includes/classRestaurantUser.php';
   
   <!-- function for find a table -->
 <?php
+
   // if(isset($_POST['numOfPeople'])&&isset($_POST['date'])&&isset($_POST['time']))
-  if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) 
-  {
+
   if(isset($_POST['find_table']))
-  
   {
+    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == 1) 
+    {
     $numOfPeople=$_POST['numOfPeople']+1;
     $reserveDate=$_POST['reserveDate'];
     $reserveTime=$_POST['reserveTime'];
@@ -275,11 +287,13 @@ require_once 'includes/classRestaurantUser.php';
    }
 
   }
-}
-else
+  else
 {
   echo "<script>alert('You have to log in at first!')</script>";
 }
+}
+
+
 ?>
 
 <div class="container">
@@ -337,11 +351,19 @@ else
 
 if(isset($_POST["save_review"])&&isset($_POST["star"])&&isset($_POST["comment_area"]))
 {
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == 1) 
+{
+
   $comment=$_POST["comment_area"];
   $rate=$_POST["star"];
   // echo $_POST["star"];
   // echo $_POST["comment_area"];
   RestaurantUser::Create($restaurantDetail->restaurantId,$_SESSION["user_id"],date('Y-m-d H:i:s'),$comment,$rate);
+}
+else
+{
+  echo "<script>alert('You have to log in at first!')</script>";
+}
 }
 
 
