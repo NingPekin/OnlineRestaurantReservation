@@ -33,7 +33,7 @@ require_once 'includes/header.php';
       	  <span class="fa fa-bars color-white"></span>
         </button>
         <div class="navbar-logo">
-          <a href="index.php"><img data-0="width:155px;" data-300=" width:120px;" src="img/logo.png" alt=""></a>
+          <a href="index.php"><img data-0="width:155px;" data-300=" width:120px;" src="" alt=""></a>
         </div>
       </div>
       <div class="navbar-collapse collapse">

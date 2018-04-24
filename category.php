@@ -28,7 +28,7 @@ if (isset($_GET['logout']))
 			<div class="navbar-header">
 				<button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse" type="button"><span class="fa fa-bars color-white"></span></button>
 				<div class="navbar-logo">
-					<a href="index.php"><img alt="" data-0="width:155px;" data-300=" width:120px;" src="img/logo.png"></a>
+					<a href="index.php"><img alt="" data-0="width:155px;" data-300=" width:120px;" src=""></a>
 				</div>
 			</div>
 			<div class="navbar-collapse collapse">
@@ -77,7 +77,8 @@ if (isset($_GET['logout']))
 				</div>
 			</div>
 		</form>
-	</section><?php
+	</section>
+  <?php
 	  //is logged in
 	  if($_SESSION["logged_in"]==1)
 	  {
